@@ -1,2 +1,2 @@
-# genai_experiments
+# Gen AI Experiments
 Gen AI Experiments
