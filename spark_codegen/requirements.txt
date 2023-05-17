@@ -1,0 +1,4 @@
+bigquery
+pandas
+google-cloud-aiplatform
+db-dtypes
