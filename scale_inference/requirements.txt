@@ -1,0 +1,4 @@
+tensorflow
+tensorflow_datasets
+google-cloud-bigquery
+google-cloud-storage
