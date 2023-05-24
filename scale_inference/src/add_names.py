@@ -1,22 +1,12 @@
-from vertexai.preview.language_models import TextGenerationModel
 import sys
 import logging
 import argparse
 import pyspark
 from pyspark.sql import SparkSession
-from pyspark.sql import functions as F
-from pyspark.sql.functions import col, udf
+from pyspark.sql.functions import  udf
 from pyspark.sql.types import StringType
+from faker import Factory
 from datetime import datetime
-
-_LLM_PROMPT_VOUCHER = 'Generate a custom apologies message including offering a discount for the following bad online review: '
-_LLM_PROMPT_ACK = 'Generate a custom thank you message for the following positive online review: '
-_LLM_PROMPT_NAME = ',  customer name is: '
-_LLM_TEMPERATURE=0.2
-_LLM_MAX_OUTPUT_TOKENS=256
-_LLM_TOP_K=40
-_LLM_TOP_P=0.8
-
 
 
 def configure_logger():
@@ -55,37 +45,34 @@ def parse_args():
         required=True)
     return argsParser.parse_args()
 
+
+
 @udf(returnType=StringType())
-def generate_text(input_text, rating,name):
-    model = TextGenerationModel.from_pretrained("text-bison@001")
-    #Bad review
-    if int(rating) < 3:
-        prompt = '{} {} {} {}'.format(_LLM_PROMPT_VOUCHER,input_text,_LLM_PROMPT_NAME,name)
-    #Good review
-    else:
-        prompt = '{} {} {} {}'.format(_LLM_PROMPT_ACK,input_text,_LLM_PROMPT_NAME,name)  
-    response = model.predict(
-        prompt,
-        temperature=_LLM_TEMPERATURE,
-        max_output_tokens=_LLM_MAX_OUTPUT_TOKENS,
-        top_k=_LLM_TOP_K,
-        top_p=_LLM_TOP_P,
-    )
-    return response.text
+def fake_name():
+    """
+    Purpose:
+        Generate a Fake name
+    Returns:
+        Returns name
+    """
+    faker = Factory.create()
+    return faker.name()
+    
 
 def exec_spark(logger, args):
     table_fqn = args.table_fqn
     temp_gcs_bucket = args.temp_gcs_bucket
     logger.info('Input parameters:')
     logger.info('   * table_fqn: {}'.format(table_fqn))
+    logger.info('   * temp_gcs_bucket: {}'.format(temp_gcs_bucket))
     try:
         logger.info('Initializing SPARK ... ')
         spark = SparkSession.builder.appName('llm_with_spark').getOrCreate()
         logger.info('Reading source data ...{}'.format(table_fqn))
-        input_table_df = spark.read.format('bigquery').option('table', "{}_completed".format(table_fqn)).load()
-        output_table_df = input_table_df.withColumn("response", generate_text(col("text"),col("label"),col("name"))) 
-        output_table_df.write.format("bigquery").mode("overwrite").option("temporaryGcsBucket",temp_gcs_bucket).save("{}_processed".format(table_fqn))
-        logger.info('Output results written to ...{}_processed'.format(table_fqn)) 
+        input_table_df = spark.read.format('bigquery').option('table', table_fqn).load()
+        output_table_df = input_table_df.withColumn("name", fake_name()) 
+        output_table_df.write.format("bigquery").mode("overwrite").option("temporaryGcsBucket",temp_gcs_bucket).save("{}_completed".format(table_fqn))
+        logger.info('Output results written to ...{}_completed'.format(table_fqn)) 
         spark.stop()
     except RuntimeError as coreError:
             logger.error(coreError)
@@ -97,8 +84,3 @@ if __name__ == "__main__":
     arguments = parse_args()
     logger = configure_logger()
     exec_spark(logger, arguments)
-
-
-
-
-   

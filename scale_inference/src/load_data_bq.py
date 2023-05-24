@@ -52,8 +52,8 @@ def load_bq(file_uri,table_fqn):
     source_format=bigquery.SourceFormat.CSV,
     )
     load_job = client.load_table_from_uri(file_uri, table_fqn, job_config=job_config)  # Make an API request.
-    load_job.result()  # Waits for the job to complete.
-    destination_table = client.get_table(table_fqn)  # Make an API request.
+    load_job.result()  
+    destination_table = client.get_table(table_fqn) 
     print("Loaded {} rows.".format(destination_table.num_rows))
 
 def extract_to_csv(file_name,num_samples):

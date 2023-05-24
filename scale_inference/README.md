@@ -63,5 +63,6 @@ BQ_TABLE_FQN="TO_DO_DEVELOPER"
 
 9. Launch the dataproc serverless job
 ```bash
-launch_job.sh
+launch_job.sh src/add_names.py
+launch_job.sh src/gen_responses.py
 ```

@@ -61,6 +61,7 @@ RUN ${CONDA_HOME}/bin/conda install mamba -n base -c conda-forge \
       cython \
       fastavro \
       fastparquet \
+      faker \
       gcsfs \
       google-cloud-bigquery-storage \
       google-cloud-bigquery[pandas] \
