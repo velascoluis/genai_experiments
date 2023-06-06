@@ -46,8 +46,20 @@ def load_bq(file_uri,table_fqn):
     client = bigquery.Client()
     job_config = bigquery.LoadJobConfig(
     schema=[
-        bigquery.SchemaField("label", "STRING"),
-        bigquery.SchemaField("text", "STRING"),
+        bigquery.SchemaField("age", "FLOAT64"),
+        bigquery.SchemaField("boat", "STRING"),
+        bigquery.SchemaField("body", "INT64"),
+        bigquery.SchemaField("cabin", "STRING"),
+        bigquery.SchemaField("embarked", "INT64"),
+        bigquery.SchemaField("fare", "FLOAT64"),
+        bigquery.SchemaField("homedest", "STRING"),
+        bigquery.SchemaField("name", "STRING"),
+        bigquery.SchemaField("parch", "INT64"),
+        bigquery.SchemaField("pclass", "INT64"),
+        bigquery.SchemaField("sex", "INT64"),
+        bigquery.SchemaField("sibsp", "INT64"),
+        bigquery.SchemaField("ticket", "STRING"),
+        bigquery.SchemaField("survived", "INT64")
     ],
     source_format=bigquery.SourceFormat.CSV,
     )
@@ -57,14 +69,26 @@ def load_bq(file_uri,table_fqn):
     print("Loaded {} rows.".format(destination_table.num_rows))
 
 def extract_to_csv(file_name,num_samples):
-    ds = tfds.load('huggingface:yelp_review_full/yelp_review_full')
+    ds = tfds.load('titanic')
     ds = ds['train']
     with open(file_name, 'w') as datafile:
         for example in ds.take(num_samples):
-            text, label = example["text"], example["label"]
-            text = (str(text.numpy().decode('UTF-8'))).replace(",", " " )
-            label = (str(label.numpy()))
-            datafile.write('{},{}\n'.format(label,text))
+            age = str(example['age'].numpy())
+            boat = str(example['boat'].numpy().decode('UTF-8'))
+            body = str(example['body'].numpy())
+            cabin= str(example['cabin'].numpy().decode('UTF-8'))
+            embarked= str(example['embarked'].numpy()).replace(",", " " )
+            fare= str(example['fare'].numpy())
+            homedest= str(example['home.dest'].numpy().decode('UTF-8')).replace(",", " " )
+            name = str(example['name'].numpy().decode('UTF-8')).replace(",", " " )
+            parch = str(example['parch'].numpy())
+            pclass = str(example['pclass'].numpy())
+            sex = str(example['sex'].numpy())
+            sibsp = str(example['sibsp'].numpy())
+            ticket = str(example['ticket'].numpy().decode('UTF-8'))
+            survived = str(example['survived'].numpy())
+            datafile.write('{},{},{},{},{},{},{},{},{},{},{},{},{},{}\n'.format(age,boat,body,cabin,embarked,fare,homedest,name,parch,pclass,sex,sibsp,ticket,survived))
+
 
 if __name__ == "__main__":
     args = parse_args()
