@@ -1,0 +1,7 @@
+tensorflow
+tensorflow-datasets
+datasets
+google-cloud-bigquery
+google-cloud-storage
+text-generation
+google-cloud-bigquery-storage
